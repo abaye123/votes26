@@ -3,12 +3,23 @@
     "label": "הכנסת ה-26 (27.10.2026)",
     "resultsSite": "https://votes26.bechirot.gov.il/",
     "csvBase": "https://media26.bechirot.gov.il/files/",
+    "agreementsSource": "https://www.gov.il/he/pages/candidates-lists-26?chapterIndex=6",
     "agreements": [
       ["רק", "ל"],
-      ["דרך", "אמת"],
-      ["מחל", "ט"],
-      ["עם", "ודם"],
-      ["שס", "ג"]
+      ["ודם", "עם"],
+      ["ט", "מחל"],
+      ["ג", "שס"],
+      ["אמת", "דרך"],
+      ["זץ", "נקי"]
+    ],
+    "turnoutSource": "https://www.gov.il/he/pages/turnout_at_polling_stations",
+    "turnoutHourly": [
+      { "time": "10:00", "percent": 16.7, "voters": 1223286 },
+      { "time": "12:00", "percent": 31.5, "voters": 2309587 },
+      { "time": "14:00", "percent": 44.9, "voters": 3290480 },
+      { "time": "16:00", "percent": 55.7, "voters": 4085075 },
+      { "time": "18:00", "percent": 66.7, "voters": 4892186 },
+      { "time": "20:00", "percent": 74.3, "voters": 5449277 }
     ],
     "parties": {
       "מחל": { "name": "הליכוד", "bloc": "coalition", "wiki": "Likud" },
@@ -55,6 +66,7 @@
     "label": "הכנסת ה-25 (1.11.2022) - נתוני עבר לבדיקה",
     "resultsSite": "https://votes25.bechirot.gov.il/",
     "csvBase": "https://media25.bechirot.gov.il/files/",
+    "agreementsSource": "https://he.wikipedia.org/wiki/הבחירות_לכנסת_העשרים_וחמש",
     "agreements": [
       ["מחל", "ט"],
       ["פה", "כן"],

@@ -10,13 +10,19 @@
   <header class="top">
     <div>
       <h1>הבחירות לכנסת ה-26</h1>
-      <p class="muted" id="subtitle">קולות גולמיים וחלוקת מנדטים לפי באדר-עופר והסכמי עודפים</p>
+      <p class="muted">קולות גולמיים, אחוזי הצבעה, מדגמים וחלוקת מנדטים לפי באדר-עופר והסכמי עודפים</p>
     </div>
-    <nav class="tabs" role="tablist">
-      <button role="tab" data-tab="official" aria-selected="true">תוצאות רשמיות</button>
-      <button role="tab" data-tab="polls" aria-selected="false">סקרים</button>
-      <button role="tab" data-tab="manual" aria-selected="false">סימולציה ידנית</button>
-    </nav>
+    <div class="header-side">
+      <nav class="tabs" role="tablist">
+        <button role="tab" data-tab="official" aria-selected="true">תוצאות רשמיות</button>
+        <button role="tab" data-tab="turnout" aria-selected="false">אחוזי הצבעה</button>
+        <button role="tab" data-tab="samples" aria-selected="false">מדגמים</button>
+        <button role="tab" data-tab="polls" aria-selected="false">סקרים</button>
+        <button role="tab" data-tab="manual" aria-selected="false">סימולציה ידנית</button>
+      </nav>
+      <label class="check muted"><input type="checkbox" id="auto-refresh" checked> רענון אוטומטי</label>
+      <span id="live-indicator" class="live" hidden role="status" aria-live="polite"><span class="live-dot"></span><span class="live-text"></span></span>
+    </div>
   </header>
 
   <main>
@@ -25,11 +31,45 @@
         <label>בחירות
           <select id="knesset"></select>
         </label>
-        <label class="check"><input type="checkbox" id="auto-refresh" checked> רענון אוטומטי כל 30 שניות</label>
         <button id="refresh">רענן עכשיו</button>
         <span class="muted" id="official-status"></span>
       </div>
       <div id="official-body"></div>
+      <div id="official-breakdown" hidden>
+        <div class="card">
+          <h2>פילוח לפי יישובים וקלפיות</h2>
+          <div class="toolbar">
+            <label>חיפוש יישוב <input type="search" id="city-q" placeholder="שם או סמל יישוב"></label>
+            <label>הצג את כוחה של רשימה <select id="city-party"></select></label>
+            <span class="muted">לחיצה על שם יישוב מציגה את התוצאות שלו לפי קלפיות. לחיצה על כותרת עמודה ממיינת.</span>
+          </div>
+          <div id="official-cities"></div>
+        </div>
+        <div id="official-city"></div>
+      </div>
+    </section>
+
+    <section id="tab-turnout" class="tab" hidden>
+      <div class="toolbar">
+        <span class="muted" id="turnout-status"></span>
+      </div>
+      <div id="turnout-body"></div>
+      <div class="card">
+        <h2>אחוזי הצבעה לפי יישוב</h2>
+        <div class="toolbar">
+          <label>חיפוש יישוב <input type="search" id="turnout-q" placeholder="שם או סמל יישוב"></label>
+          <span class="muted">לחיצה על שם יישוב מציגה את אחוזי ההצבעה בכל קלפי.</span>
+        </div>
+        <div id="turnout-cities"></div>
+      </div>
+      <div id="turnout-city"></div>
+    </section>
+
+    <section id="tab-samples" class="tab" hidden>
+      <div class="toolbar">
+        <span class="muted" id="samples-status"></span>
+      </div>
+      <div id="samples-body"></div>
     </section>
 
     <section id="tab-polls" class="tab" hidden>
@@ -62,8 +102,8 @@
   </main>
 
   <footer class="muted">
-    מקורות: קובץ התוצאות לפי קלפיות של ועדת הבחירות המרכזית (media26.bechirot.gov.il), ריכוז הסקרים בוויקיפדיה האנגלית.
-    התוצאות הסופיות הרשמיות יפורסמו ברשומות.
+    מקורות: קבצי התוצאות ואחוזי ההצבעה של ועדת הבחירות המרכזית, הסכמי העודפים מילקוט הפרסומים 15045,
+    מדגמים מאתר הברומטר (JDN), ריכוז הסקרים בוויקיפדיה האנגלית. התוצאות הסופיות הרשמיות יפורסמו ברשומות.
   </footer>
 
   <script type="module" src="app.js"></script>

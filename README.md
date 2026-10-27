@@ -7,6 +7,7 @@ seat allocation by the Bader-Ofer method with surplus agreements, and published 
 
 ```
 npm start      # http://localhost:8026
+npm run dev    # restarts on server code changes
 npm test
 ```
 
@@ -18,6 +19,14 @@ Node.js 20+ and no dependencies.
   `https://media26.bechirot.gov.il/files/expb.csv`. Before counting starts it holds
   only a header row, and the dashboard shows "waiting". The server polls it at most
   every 30 seconds. Select the 25th Knesset (2022) to see the dashboard with real data.
+- **Turnout** - the Central Elections Committee turnout map files
+  (`mapvotes.bechirot.gov.il/data/votes/latest/{municipal,kalpi}_data.json`), with the
+  hourly national estimates from gov.il kept in `data/elections.json` (gov.il itself
+  blocks scripted requests).
+- **Surplus agreements** - Yalkut HaPirsumim 15045 (19 October 2026), linked from the
+  committee's candidate lists page.
+- **Exit polls** - the public `live-results.json` of the JDN "Barometer" site, empty
+  until polls close. Unknown party ids are shown as unmatched lists.
 - **Polls** - the seat projection tables on the English Wikipedia page
   "Opinion polling for the 2026 Israeli legislative election" (N12, Kan 11, Channel 13,
   Maariv, Channel 14 and others), cached for 10 minutes.
