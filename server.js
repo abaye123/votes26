@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gunzipSync } from 'node:zlib';
 import { fetchOfficialResults, parseOfficialResults } from './lib/results.js';
 import { fetchPolls } from './lib/polls.js';
 import { fetchTurnoutCatalog, fetchTurnoutLayer, parseTurnoutLayer, turnoutLayerUrl } from './lib/turnout.js';
@@ -22,6 +23,7 @@ const SAMPLES_TTL_MS = 30_000;
 // Relay data newer than this is used instead of downloading from the source.
 const RELAY_FRESH_MS = 3 * 60_000;
 const RELAY_TOKEN = process.env.RELAY_TOKEN || '';
+const RELAY_MAX_BYTES = 25 * 1024 * 1024;
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -78,7 +80,15 @@ async function handleIngest(req, url, res) {
   if (!tokenMatches(req.headers.authorization, RELAY_TOKEN)) return sendJson(res, 401, { error: 'Invalid relay token' });
   const name = decodeURIComponent(url.pathname.slice('/api/ingest/'.length));
   try {
-    const body = await readBody(req, 25 * 1024 * 1024);
+    const raw = await readBody(req, RELAY_MAX_BYTES);
+    let body = raw;
+    if (/gzip/i.test(req.headers['content-encoding'] || '')) {
+      try {
+        body = gunzipSync(raw, { maxOutputLength: RELAY_MAX_BYTES });
+      } catch {
+        throw Object.assign(new Error('Upload is not valid gzip or is too large'), { status: 400 });
+      }
+    }
     const meta = await relay.put(name, body, { sourceLastModified: req.headers['x-source-last-modified'] || null });
     if (RELAY_CACHE_KEYS[name]) cache.delete(RELAY_CACHE_KEYS[name]);
     console.log(`Relay upload ${name}: ${meta.bytes} bytes`);

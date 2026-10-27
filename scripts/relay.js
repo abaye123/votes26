@@ -6,6 +6,7 @@
 // Settings come from .env (see .env.example): RELAY_URL, RELAY_TOKEN.
 
 import { createHash } from 'node:crypto';
+import { gzipSync } from 'node:zlib';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEnv } from '../lib/env.js';
@@ -40,14 +41,16 @@ async function relayOnce(source) {
   const hash = createHash('sha256').update(body).digest('hex');
   if (lastSent.get(source.name) === hash) return 'unchanged';
 
+  // Compressed so uploads stay under typical proxy body limits (nginx: 1MB).
   const upload = await fetch(`${SERVER}/api/ingest/${encodeURIComponent(source.name)}`, {
     method: 'POST',
     headers: {
       authorization: `Bearer ${TOKEN}`,
       'content-type': 'application/octet-stream',
+      'content-encoding': 'gzip',
       ...(res.headers.get('last-modified') ? { 'x-source-last-modified': res.headers.get('last-modified') } : {}),
     },
-    body,
+    body: gzipSync(body, { level: 9 }),
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   const text = await upload.text();
