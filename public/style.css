@@ -15,7 +15,17 @@
   --good: #008300;
   --bad: #c62828;
   --flash: #ffe58a;
+  --group-right: #2a78d6;
+  --group-leanRight: #86b6ef;
+  --group-haredi: #6250d6;
+  --group-leanLeft: #f5a37f;
+  --group-left: #eb6834;
+  --group-arab: #1baf7a;
 }
+.line-chart { width: 100%; height: auto; display: block; }
+.line-chart .grid-line { stroke: var(--grid); stroke-width: 1; }
+.line-chart .axis-label { fill: var(--muted); font-size: 11px; }
+.line-chart .series-label { fill: var(--text-2); font-size: 12px; font-weight: 600; }
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
@@ -34,6 +44,12 @@
     --good: #4caf50;
     --bad: #ef6b6b;
     --flash: #6b5a12;
+    --group-right: #3987e5;
+    --group-leanRight: #1c5cab;
+    --group-haredi: #9085e9;
+    --group-leanLeft: #a8461c;
+    --group-left: #d95926;
+    --group-arab: #199e70;
   }
 }
 

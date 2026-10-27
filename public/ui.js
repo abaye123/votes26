@@ -14,6 +14,12 @@ export const $ = (sel) => document.querySelector(sel);
 export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 export const pct = (n, total) => (total ? (n / total) * 100 : 0);
 
+/** A number with an explicit sign, isolated as LTR so RTL text does not move the sign. */
+export function signed(v, format = fmtPct) {
+  const sign = v > 0 ? '+' : v < 0 ? '−' : '';
+  return `<span dir="ltr">${sign}${format.format(Math.abs(v))}</span>`;
+}
+
 export function partyName(parties, id) {
   return parties[id]?.name || (id.startsWith('?') ? id.slice(1) : id);
 }

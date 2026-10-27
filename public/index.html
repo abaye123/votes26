@@ -58,7 +58,15 @@
         <h2>אחוזי הצבעה לפי יישוב</h2>
         <div class="toolbar">
           <label>חיפוש יישוב <input type="search" id="turnout-q" placeholder="שם או סמל יישוב"></label>
-          <span class="muted">לחיצה על שם יישוב מציגה את אחוזי ההצבעה בכל קלפי.</span>
+          <label>גודל
+            <select id="turnout-size">
+              <option value="">הכל</option>
+              <option value="5000">מעל 5,000 בעלי זכות</option>
+              <option value="50000">ערים גדולות (מעל 50,000)</option>
+            </select>
+          </label>
+          <label>קבוצה <select id="turnout-group"><option value="">כל הקבוצות</option></select></label>
+          <span class="muted">"מתוך 2022" = כמה מאחוז ההצבעה הסופי של היישוב ב-2022 כבר הושג. לחיצה על שם יישוב מציגה את הקלפיות.</span>
         </div>
         <div id="turnout-cities"></div>
       </div>

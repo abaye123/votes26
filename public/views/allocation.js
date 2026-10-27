@@ -1,5 +1,5 @@
 import { allocateSeats } from '../lib/allocation.js';
-import { fmt, fmtPct, SEATS, MAJORITY, BLOCS, esc, pct, partyName, blocOf, blocLabel, kpi } from '../ui.js';
+import { fmt, fmtPct, SEATS, MAJORITY, BLOCS, esc, pct, partyName, blocOf, blocLabel, kpi, signed } from '../ui.js';
 // Elements carrying data-k are compared across renders and flashed when they change.
 
 const pairKey = ([a, b]) => `${a}|${b}`;
@@ -81,7 +81,7 @@ function seatBars(ids, withAgr, without, parties) {
     return `<div class="name" title="${esc(tip)}">${esc(partyName(parties, id))}</div>
       <div class="track" title="${esc(tip)}">
         <div class="bar" style="width:${(l.seats / max) * 85}%;background:var(--bloc-${blocOf(parties, id)})"></div>
-        <span data-k="seats:${esc(id)}">${l.seats}${diff ? ` <span class="${diff > 0 ? 'pos' : 'neg'}">(${diff > 0 ? '+' : ''}${diff} מהסכם)</span>` : ''}</span>
+        <span data-k="seats:${esc(id)}">${l.seats}${diff ? ` <span class="${diff > 0 ? 'pos' : 'neg'}">(${signed(diff, fmt)} מהסכם)</span>` : ''}</span>
       </div>`;
   }).join('')}</div>`;
 }
@@ -120,7 +120,7 @@ function allocationTable(ids, withAgr, without, parties) {
       <td class="num">${l.passed ? l.extraSeats : ''}</td>
       <td class="num" data-k="tseats:${esc(id)}"><strong>${l.passed ? l.seats : ''}</strong></td>
       <td class="num">${l.passed ? without.lists[id].seats : ''}</td>
-      <td class="num ${diff > 0 ? 'pos' : diff < 0 ? 'neg' : ''}">${diff ? (diff > 0 ? '+' : '') + diff : ''}</td>
+      <td class="num ${diff > 0 ? 'pos' : diff < 0 ? 'neg' : ''}">${diff ? signed(diff, fmt) : ''}</td>
     </tr>`;
   }).join('');
   return `<div class="table-wrap"><table>

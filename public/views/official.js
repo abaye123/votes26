@@ -1,4 +1,4 @@
-import { $, esc, fmt, fmtPct, pct, kpi, getJson, partyName, blocOf, bars, sortableTable, onSortClick, setHtml, markRefreshed } from '../ui.js';
+import { $, esc, fmt, fmtPct, pct, kpi, getJson, partyName, blocOf, bars, sortableTable, onSortClick, setHtml, markRefreshed, signed } from '../ui.js';
 import { getState, setState } from '../url-state.js';
 import { renderAllocation } from './allocation.js';
 
@@ -155,7 +155,7 @@ function renderCity() {
     const diff = local - nat;
     return `<tr><td><strong>${esc(id)}</strong></td><td>${esc(partyName(parties, id))}</td>
       <td class="num" data-k="cvotes:${esc(id)}">${fmt.format(city.votes[id])}</td><td class="num" data-k="cpct:${esc(id)}">${fmtPct.format(local)}%</td>
-      <td class="num">${fmtPct.format(nat)}%</td><td class="num ${diff > 0 ? 'pos' : 'neg'}">${diff > 0 ? '+' : ''}${fmtPct.format(diff)}</td></tr>`;
+      <td class="num">${fmtPct.format(nat)}%</td><td class="num ${diff > 0 ? 'pos' : 'neg'}">${signed(diff)}</td></tr>`;
   }).join('');
 
   const shownParties = ids.slice(0, 8);

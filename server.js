@@ -6,6 +6,7 @@ import { fetchOfficialResults } from './lib/results.js';
 import { fetchPolls } from './lib/polls.js';
 import { fetchTurnoutCatalog, fetchTurnoutLayer } from './lib/turnout.js';
 import { fetchSamples } from './lib/samples.js';
+import { buildBaseline, GROUPS } from './lib/baseline.js';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
 const PUBLIC = join(ROOT, 'public');
@@ -15,6 +16,7 @@ const OFFICIAL_TTL_MS = 30_000;
 const POLLS_TTL_MS = 10 * 60_000;
 const TURNOUT_TTL_MS = 60_000;
 const SAMPLES_TTL_MS = 30_000;
+const BASELINE_TTL_MS = 24 * 60 * 60_000;
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -25,6 +27,7 @@ const MIME = {
 };
 
 const elections = JSON.parse(await readFile(join(ROOT, 'data', 'elections.json'), 'utf8'));
+const turnoutHistory = JSON.parse(await readFile(join(ROOT, 'data', 'turnout-history.json'), 'utf8'));
 const cache = new Map();
 
 async function cached(key, ttl, load) {
@@ -70,10 +73,15 @@ async function handleApi(url, res) {
     if (url.pathname === '/api/turnout') {
       const key = `turnout:${knesset}:municipal`;
       const data = await cached(key, TURNOUT_TTL_MS, () => fetchTurnoutLayer(path, 'municipal'));
+      const baseline = await cached('baseline:25', BASELINE_TTL_MS,
+        async () => buildBaseline((await fetchOfficialResults(elections['25'].csvBase)).cities));
       return sendJson(res, 200, {
         ...data,
+        features: data.features.map((f) => ({ ...f, final2022: baseline[f.id]?.turnout ?? null, group: baseline[f.id]?.group ?? null })),
+        groups: GROUPS,
         hourly: election.turnoutHourly || [],
         hourlySource: election.turnoutSource || null,
+        history: turnoutHistory,
         fetchedAt: cache.get(key).at,
       });
     }
