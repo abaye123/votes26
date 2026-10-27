@@ -80,6 +80,15 @@ async function handleIngest(req, url, res) {
   if (!tokenMatches(req.headers.authorization, RELAY_TOKEN)) return sendJson(res, 401, { error: 'Invalid relay token' });
   const name = decodeURIComponent(url.pathname.slice('/api/ingest/'.length));
   try {
+    // A confirmation that the source still holds the content already stored.
+    const unchanged = req.headers['x-relay-unchanged'];
+    if (unchanged) {
+      if (!(await relay.confirm(name, String(unchanged)))) {
+        return sendJson(res, 409, { error: 'Stored content differs; upload the file' });
+      }
+      if (RELAY_CACHE_KEYS[name]) cache.delete(RELAY_CACHE_KEYS[name]);
+      return sendJson(res, 200, { ok: true, confirmed: true });
+    }
     const raw = await readBody(req, RELAY_MAX_BYTES);
     let body = raw;
     if (/gzip/i.test(req.headers['content-encoding'] || '')) {

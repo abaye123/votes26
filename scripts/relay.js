@@ -39,10 +39,22 @@ async function relayOnce(source) {
   if (!source.type.test(type)) throw new Error(`source answered ${type || 'no content type'} (busy or maintenance page)`);
   const body = Buffer.from(await res.arrayBuffer());
   const hash = createHash('sha256').update(body).digest('hex');
-  if (lastSent.get(source.name) === hash) return 'unchanged';
+  const ingestUrl = `${SERVER}/api/ingest/${encodeURIComponent(source.name)}`;
+
+  if (lastSent.get(source.name) === hash) {
+    // Tell the server the data is still current, so it is not shown as stale.
+    const confirm = await fetch(ingestUrl, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${TOKEN}`, 'x-relay-unchanged': hash },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (confirm.ok) return 'unchanged';
+    if (confirm.status !== 409) throw new Error(`server rejected the confirmation: HTTP ${confirm.status} ${(await confirm.text()).slice(0, 200)}`);
+    // The server lost or replaced its copy: upload the file again below.
+  }
 
   // Compressed so uploads stay under typical proxy body limits (nginx: 1MB).
-  const upload = await fetch(`${SERVER}/api/ingest/${encodeURIComponent(source.name)}`, {
+  const upload = await fetch(ingestUrl, {
     method: 'POST',
     headers: {
       authorization: `Bearer ${TOKEN}`,
