@@ -6,7 +6,7 @@ import { fetchOfficialResults } from './lib/results.js';
 import { fetchPolls } from './lib/polls.js';
 import { fetchTurnoutCatalog, fetchTurnoutLayer } from './lib/turnout.js';
 import { fetchSamples } from './lib/samples.js';
-import { buildBaseline, GROUPS } from './lib/baseline.js';
+import { GROUPS } from './lib/baseline.js';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
 const PUBLIC = join(ROOT, 'public');
@@ -16,7 +16,6 @@ const OFFICIAL_TTL_MS = 30_000;
 const POLLS_TTL_MS = 10 * 60_000;
 const TURNOUT_TTL_MS = 60_000;
 const SAMPLES_TTL_MS = 30_000;
-const BASELINE_TTL_MS = 24 * 60 * 60_000;
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -28,15 +27,29 @@ const MIME = {
 
 const elections = JSON.parse(await readFile(join(ROOT, 'data', 'elections.json'), 'utf8'));
 const turnoutHistory = JSON.parse(await readFile(join(ROOT, 'data', 'turnout-history.json'), 'utf8'));
+// Per-city 2022 turnout and voting group, precomputed by scripts/build-baseline.js.
+const baseline2022 = JSON.parse(await readFile(join(ROOT, 'data', 'baseline-2022.json'), 'utf8'));
 const cache = new Map();
 
+// On a failed refresh the last good value is served again and the error is
+// kept on the entry, so a busy or blocked source does not blank the dashboard.
 async function cached(key, ttl, load) {
   const hit = cache.get(key);
-  if (hit && Date.now() - hit.at < ttl) return hit.value;
-  const value = await load();
-  cache.set(key, { at: Date.now(), value });
-  return value;
+  if (hit && Date.now() - hit.checkedAt < ttl) return hit.value;
+  try {
+    const value = await load();
+    cache.set(key, { at: Date.now(), checkedAt: Date.now(), value, error: null });
+    return value;
+  } catch (err) {
+    if (!hit) throw err;
+    console.error(`Serving stale ${key}: ${err.message}`);
+    hit.checkedAt = Date.now();
+    hit.error = err.message;
+    return hit.value;
+  }
 }
+
+const freshness = (key) => ({ fetchedAt: cache.get(key)?.at, staleError: cache.get(key)?.error || null });
 
 function sendJson(res, status, body) {
   res.writeHead(status, { 'content-type': MIME['.json'], 'cache-control': 'no-store' });
@@ -55,7 +68,7 @@ async function handleApi(url, res) {
   if (url.pathname.startsWith('/api/official')) {
     const key = `official:${knesset}`;
     const { cities, ballots, ...national } = await cached(key, OFFICIAL_TTL_MS, () => fetchOfficialResults(election.csvBase));
-    const meta = { fetchedAt: cache.get(key).at };
+    const meta = freshness(key);
     if (url.pathname === '/api/official') return sendJson(res, 200, { ...national, ...meta });
     if (url.pathname === '/api/official/cities') {
       return sendJson(res, 200, { status: national.status, cities: cities || [], ...meta });
@@ -73,8 +86,7 @@ async function handleApi(url, res) {
     if (url.pathname === '/api/turnout') {
       const key = `turnout:${knesset}:municipal`;
       const data = await cached(key, TURNOUT_TTL_MS, () => fetchTurnoutLayer(path, 'municipal'));
-      const baseline = await cached('baseline:25', BASELINE_TTL_MS,
-        async () => buildBaseline((await fetchOfficialResults(elections['25'].csvBase)).cities));
+      const baseline = baseline2022.cities;
       return sendJson(res, 200, {
         ...data,
         features: data.features.map((f) => ({ ...f, final2022: baseline[f.id]?.turnout ?? null, group: baseline[f.id]?.group ?? null })),
@@ -82,25 +94,25 @@ async function handleApi(url, res) {
         hourly: election.turnoutHourly || [],
         hourlySource: election.turnoutSource || null,
         history: turnoutHistory,
-        fetchedAt: cache.get(key).at,
+        ...freshness(key),
       });
     }
     if (url.pathname === '/api/turnout/kalpis') {
       const key = `turnout:${knesset}:kalpi`;
       const data = await cached(key, TURNOUT_TTL_MS, () => fetchTurnoutLayer(path, 'kalpi'));
       const city = url.searchParams.get('city');
-      return sendJson(res, 200, { ...data, features: data.features.filter((f) => f.city === city), fetchedAt: cache.get(key).at });
+      return sendJson(res, 200, { ...data, features: data.features.filter((f) => f.city === city), ...freshness(key) });
     }
   }
 
   if (url.pathname === '/api/samples') {
     const data = await cached('samples', SAMPLES_TTL_MS, () => fetchSamples());
-    return sendJson(res, 200, { ...data, fetchedAt: cache.get('samples').at });
+    return sendJson(res, 200, { ...data, ...freshness('samples') });
   }
 
   if (url.pathname === '/api/polls') {
     const data = await cached('polls', POLLS_TTL_MS, () => fetchPolls(elections['26'].parties));
-    return sendJson(res, 200, { ...data, fetchedAt: cache.get('polls').at });
+    return sendJson(res, 200, { ...data, ...freshness('polls') });
   }
 
   return sendJson(res, 404, { error: 'Not found' });
@@ -128,7 +140,8 @@ createServer(async (req, res) => {
     else await serveStatic(url, res);
   } catch (err) {
     console.error(err);
-    sendJson(res, 502, { error: err.message });
+    // 503 rather than 502: Cloudflare replaces origin 502 responses with its own HTML page.
+    sendJson(res, 503, { error: err.message });
   }
 }).listen(PORT, HOST, () => {
   console.log(`Elections dashboard: http://${HOST}:${PORT}`);

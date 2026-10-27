@@ -86,10 +86,24 @@ export function markRefreshed(changed) {
   paintIndicator();
 }
 
+/** Warning shown when the server served its last good copy because the source failed. */
+export function staleNote(data) {
+  if (!data?.staleError) return '';
+  const at = data.fetchedAt ? new Date(data.fetchedAt).toLocaleTimeString('he-IL') : '';
+  return ` · <span class="error" title="${esc(data.staleError)}">המקור לא מגיב כרגע (כנראה עומס באתר ועדת הבחירות). מוצגים הנתונים האחרונים שנטענו${at ? ` ב-${at}` : ''}.</span>`;
+}
+
 export async function getJson(url) {
   const res = await fetch(url);
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || res.statusText);
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    // A proxy in front of the server (e.g. Cloudflare) may answer with an HTML error page.
+    throw new Error(`השרת החזיר תשובה שאינה JSON (HTTP ${res.status})`);
+  }
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data;
 }
 

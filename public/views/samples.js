@@ -1,4 +1,4 @@
-import { $, esc, getJson, partyName, blocOf, bars, setHtml, markRefreshed } from '../ui.js';
+import { $, esc, getJson, partyName, blocOf, bars, setHtml, markRefreshed, staleNote } from '../ui.js';
 import { blocSummary } from './allocation.js';
 
 let config;
@@ -18,7 +18,7 @@ export async function loadSamples() {
     const signature = JSON.stringify(data.samples);
     markRefreshed(lastSignature !== null && signature !== lastSignature);
     lastSignature = signature;
-    $('#samples-status').innerHTML = `נמשך ב-${new Date(data.fetchedAt).toLocaleTimeString('he-IL')} · מקור: <a href="https://elections.jdn.co.il/" target="_blank" rel="noopener">הברומטר (JDN)</a>`;
+    $('#samples-status').innerHTML = `נמשך ב-${new Date(data.fetchedAt).toLocaleTimeString('he-IL')} · מקור: <a href="https://elections.jdn.co.il/" target="_blank" rel="noopener">הברומטר (JDN)</a>${staleNote(data)}`;
   } catch (err) {
     data = null;
     $('#samples-status').innerHTML = `<span class="error">שגיאה בטעינה: ${esc(err.message)}</span>`;

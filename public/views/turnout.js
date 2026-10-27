@@ -1,4 +1,4 @@
-import { $, esc, fmt, fmtPct, kpi, getJson, sortableTable, onSortClick, setHtml, markRefreshed, signed } from '../ui.js';
+import { $, esc, fmt, fmtPct, kpi, getJson, sortableTable, onSortClick, setHtml, markRefreshed, signed, staleNote } from '../ui.js';
 import { getState, setState } from '../url-state.js';
 import { lineChart } from '../line-chart.js';
 
@@ -30,7 +30,7 @@ export async function loadTurnout() {
   $('#turnout-status').textContent = 'טוען...';
   try {
     data = await getJson('/api/turnout?knesset=26');
-    $('#turnout-status').innerHTML = `דיווח אחרון: ${esc(data.reportTime || '')} · נמשך ב-${new Date(data.fetchedAt).toLocaleTimeString('he-IL')} · <a href="${esc(data.hourlySource || data.source)}" target="_blank" rel="noopener">ועדת הבחירות</a>`;
+    $('#turnout-status').innerHTML = `דיווח אחרון: ${esc(data.reportTime || '')} · נמשך ב-${new Date(data.fetchedAt).toLocaleTimeString('he-IL')} · <a href="${esc(data.hourlySource || data.source)}" target="_blank" rel="noopener">ועדת הבחירות</a>${staleNote(data)}`;
     const city = getState().tcity;
     if (city) await loadKalpis(city);
     const report = `${data.reportTime}|${data.total?.voters}`;

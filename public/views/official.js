@@ -1,4 +1,4 @@
-import { $, esc, fmt, fmtPct, pct, kpi, getJson, partyName, blocOf, bars, sortableTable, onSortClick, setHtml, markRefreshed, signed } from '../ui.js';
+import { $, esc, fmt, fmtPct, pct, kpi, getJson, partyName, blocOf, bars, sortableTable, onSortClick, setHtml, markRefreshed, signed, staleNote } from '../ui.js';
 import { getState, setState } from '../url-state.js';
 import { renderAllocation } from './allocation.js';
 
@@ -40,7 +40,7 @@ export async function loadOfficial() {
     national = { knesset, ...(await getJson(`/api/official?knesset=${encodeURIComponent(knesset)}`)) };
     const when = new Date(national.fetchedAt).toLocaleTimeString('he-IL');
     const modified = national.lastModified ? ` · קובץ המקור עודכן ב-${new Date(national.lastModified).toLocaleTimeString('he-IL')}` : '';
-    $('#official-status').innerHTML = `עודכן ב-${when}${modified} · <a href="${esc(election().resultsSite)}" target="_blank" rel="noopener">אתר ועדת הבחירות</a>`;
+    $('#official-status').innerHTML = `עודכן ב-${when}${modified} · <a href="${esc(election().resultsSite)}" target="_blank" rel="noopener">אתר ועדת הבחירות</a>${staleNote(national)}`;
     if (national.status === 'ok') {
       cities = (await getJson(`/api/official/cities?knesset=${encodeURIComponent(knesset)}`)).cities;
       const city = getState().city;
