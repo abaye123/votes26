@@ -167,3 +167,17 @@ tr:hover td { background: var(--grid); }
 .manual-grid input { width: 100px; }
 
 .error { color: var(--bad); }
+
+/* Results update alerts */
+#alerts-toggle[aria-pressed="true"] { border-color: var(--good); color: var(--text); }
+.toasts { position: fixed; bottom: 16px; inset-inline-start: 16px; z-index: 10;
+  display: flex; flex-direction: column; gap: 8px; max-width: min(360px, calc(100vw - 32px)); }
+.toast { background: var(--surface); color: var(--text); border: 1px solid var(--border);
+  border-inline-start: 4px solid var(--good); border-radius: 8px; padding: 10px 14px; padding-inline-end: 36px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / .18); cursor: pointer; position: relative;
+  animation: toast-in .3s ease-out; }
+.toast strong { display: block; margin-bottom: 2px; }
+.toast-close { position: absolute; top: 4px; inset-inline-end: 4px; border: 0; background: transparent;
+  font-size: 1.2rem; line-height: 1; padding: 2px 8px; }
+@keyframes toast-in { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } }

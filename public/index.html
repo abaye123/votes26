@@ -21,6 +21,7 @@
         <button role="tab" data-tab="manual" aria-selected="false">סימולציה ידנית</button>
       </nav>
       <label class="check muted"><input type="checkbox" id="auto-refresh" checked> רענון אוטומטי</label>
+      <button id="alerts-toggle" aria-pressed="false" title="התראה במסך וקולית בכל עדכון של קובץ התוצאות הרשמי">🔕 התראה על עדכון תוצאות</button>
       <span id="live-indicator" class="live" hidden role="status" aria-live="polite"><span class="live-dot"></span><span class="live-text"></span></span>
     </div>
   </header>
@@ -114,6 +115,7 @@
     מדגמים מאתר הברומטר (JDN), ריכוז הסקרים בוויקיפדיה האנגלית. התוצאות הסופיות הרשמיות יפורסמו ברשומות.
   </footer>
 
+  <div id="toasts" class="toasts" aria-live="assertive"></div>
   <script type="module" src="app.js"></script>
 </body>
 </html>

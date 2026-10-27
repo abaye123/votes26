@@ -5,6 +5,7 @@ import { initTurnout, loadTurnout } from './views/turnout.js';
 import { initSamples, loadSamples } from './views/samples.js';
 import { initPolls, loadPolls } from './views/polls.js';
 import { initManual, simulateFromSeats } from './views/manual.js';
+import { initAlerts } from './alerts.js';
 
 const TABS = ['official', 'turnout', 'samples', 'polls', 'manual'];
 // Tabs with live data and how often to refresh them while visible.
@@ -46,6 +47,12 @@ async function init() {
   document.querySelectorAll('[role="tab"]').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
   $('#auto-refresh').addEventListener('change', () => showTab(getState().tab, { updateUrl: false }));
   showTab(getState().tab, { updateUrl: false });
+
+  // A results update reloads the official tab when it shows the live election.
+  initAlerts(({ open }) => {
+    if (open && getState().tab !== 'official') showTab('official');
+    else if (getState().tab === 'official' && $('#knesset').value === '26') loadOfficial();
+  });
 }
 
 init();
