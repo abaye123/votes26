@@ -88,9 +88,18 @@ export function markRefreshed(changed) {
 
 /** Warning shown when the server served its last good copy because the source failed. */
 export function staleNote(data) {
-  if (!data?.staleError) return '';
-  const at = data.fetchedAt ? new Date(data.fetchedAt).toLocaleTimeString('he-IL') : '';
-  return ` · <span class="error" title="${esc(data.staleError)}">המקור לא מגיב כרגע (כנראה עומס באתר ועדת הבחירות). מוצגים הנתונים האחרונים שנטענו${at ? ` ב-${at}` : ''}.</span>`;
+  let note = '';
+  if (data?.via === 'relay' && data.relayReceivedAt) {
+    const at = new Date(data.relayReceivedAt).toLocaleTimeString('he-IL');
+    note += data.relayStale
+      ? ` · <span class="error">הממסר לא שלח נתונים חדשים מאז ${at}, והשרת לא מצליח להוריד בעצמו.</span>`
+      : ` · התקבל דרך הממסר ב-${at}`;
+  }
+  if (data?.staleError) {
+    const at = data.fetchedAt ? new Date(data.fetchedAt).toLocaleTimeString('he-IL') : '';
+    note += ` · <span class="error" title="${esc(data.staleError)}">המקור לא מגיב כרגע (כנראה עומס באתר ועדת הבחירות). מוצגים הנתונים האחרונים שנטענו${at ? ` ב-${at}` : ''}.</span>`;
+  }
+  return note;
 }
 
 export async function getJson(url) {

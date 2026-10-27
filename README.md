@@ -33,6 +33,21 @@ Node.js 20+ and no dependencies.
 - **Manual simulation** - enter percentages or votes per list (e.g. from an exit poll),
   or load a poll from the polls tab. Poll seats are converted to estimated vote shares.
 
+## Relay
+
+The elections committee blocks some data-center addresses: from such a server
+the 2026 results file and the turnout map files fail, while the 2022 archive,
+the exit polls and the polls still work. The relay runs on a machine that can
+reach those sites (e.g. a home computer in Israel), downloads them and uploads
+each changed file to the server:
+
+1. Put the same `RELAY_TOKEN` in `.env` on both machines (see `.env.example`).
+2. On the server, restart the dashboard so it reads `.env`.
+3. On the relay machine, set `RELAY_URL` to the server and run `npm run relay`.
+
+The server validates every upload, keeps the latest copy in `var/relay/` and
+prefers relay data newer than three minutes; otherwise it downloads directly.
+
 ## Seat allocation
 
 `public/lib/allocation.js` implements section 81 of the Knesset Elections Law:

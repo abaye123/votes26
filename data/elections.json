@@ -13,6 +13,7 @@
       ["זץ", "נקי"]
     ],
     "turnoutSource": "https://www.gov.il/he/pages/turnout_at_polling_stations",
+    "turnoutPath": "latest",
     "turnoutHourly": [
       { "time": "10:00", "percent": 16.7, "voters": 1223286 },
       { "time": "12:00", "percent": 31.5, "voters": 2309587 },
