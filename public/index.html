@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>בחירות 2026</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1>הבחירות לכנסת ה-26</h1>
+      <p class="muted" id="subtitle">קולות גולמיים וחלוקת מנדטים לפי באדר-עופר והסכמי עודפים</p>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="official" aria-selected="true">תוצאות רשמיות</button>
+      <button role="tab" data-tab="polls" aria-selected="false">סקרים</button>
+      <button role="tab" data-tab="manual" aria-selected="false">סימולציה ידנית</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="tab-official" class="tab">
+      <div class="toolbar">
+        <label>בחירות
+          <select id="knesset"></select>
+        </label>
+        <label class="check"><input type="checkbox" id="auto-refresh" checked> רענון אוטומטי כל 30 שניות</label>
+        <button id="refresh">רענן עכשיו</button>
+        <span class="muted" id="official-status"></span>
+      </div>
+      <div id="official-body"></div>
+    </section>
+
+    <section id="tab-polls" class="tab" hidden>
+      <div class="toolbar">
+        <label>גוף מפרסם
+          <select id="publisher"></select>
+        </label>
+        <label>מספר סקרים להצגה
+          <select id="poll-limit">
+            <option>15</option><option selected>30</option><option>60</option><option>300</option>
+          </select>
+        </label>
+        <span class="muted" id="polls-status"></span>
+      </div>
+      <div id="polls-body"></div>
+    </section>
+
+    <section id="tab-manual" class="tab" hidden>
+      <p class="muted">הזינו קולות או אחוזים לכל רשימה (למשל ממדגם של ערוץ טלוויזיה) וקבלו את חלוקת המנדטים לפי חוק הבחירות.</p>
+      <div class="toolbar">
+        <label>יחידות
+          <select id="manual-unit"><option value="pct">אחוזים</option><option value="votes">קולות</option></select>
+        </label>
+        <button id="manual-clear">איפוס</button>
+        <span class="muted" id="manual-sum"></span>
+      </div>
+      <div id="manual-inputs" class="manual-grid"></div>
+      <div id="manual-body"></div>
+    </section>
+  </main>
+
+  <footer class="muted">
+    מקורות: קובץ התוצאות לפי קלפיות של ועדת הבחירות המרכזית (media26.bechirot.gov.il), ריכוז הסקרים בוויקיפדיה האנגלית.
+    התוצאות הסופיות הרשמיות יפורסמו ברשומות.
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

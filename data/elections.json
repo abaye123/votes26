@@ -1,0 +1,80 @@
+{
+  "26": {
+    "label": "הכנסת ה-26 (27.10.2026)",
+    "resultsSite": "https://votes26.bechirot.gov.il/",
+    "csvBase": "https://media26.bechirot.gov.il/files/",
+    "agreements": [
+      ["רק", "ל"],
+      ["דרך", "אמת"],
+      ["מחל", "ט"],
+      ["עם", "ודם"],
+      ["שס", "ג"]
+    ],
+    "parties": {
+      "מחל": { "name": "הליכוד", "bloc": "coalition", "wiki": "Likud" },
+      "רק": { "name": "ביחד", "bloc": "change", "wiki": "Together (Israel)" },
+      "שס": { "name": "ש\"ס", "bloc": "coalition", "wiki": "Shas" },
+      "ט": { "name": "הציונות הדתית - זהות", "bloc": "coalition", "wiki": "Religious Zionist Party" },
+      "ג": { "name": "יהדות התורה", "bloc": "coalition", "wiki": "United Torah Judaism" },
+      "ב": { "name": "עוצמה יהודית", "bloc": "coalition", "wiki": "Otzma Yehudit" },
+      "ל": { "name": "ישראל ביתנו", "bloc": "change", "wiki": "Yisrael Beiteinu" },
+      "עם": { "name": "רע\"ם", "bloc": "arab", "wiki": "Ra'am" },
+      "ודם": { "name": "הרשימה המשותפת", "bloc": "arab", "wiki": "Joint List" },
+      "אמת": { "name": "הדמוקרטים", "bloc": "change", "wiki": "The Democrats (Israel)" },
+      "דרך": { "name": "ישר!", "bloc": "change", "wiki": "Yashar (political party)" },
+      "די": { "name": "המילואימניקים - המפלגה הכלכלית", "bloc": "other", "wiki": "The Reservists (political party)" },
+      "ך": { "name": "עמך ישראל", "bloc": "other", "wiki": "Amcha Yisrael" },
+      "זך": { "name": "הציבור החרדי", "bloc": "other", "wiki": "Haredi Public" },
+      "ני": { "name": "נעם", "bloc": "other" },
+      "י": { "name": "ישראל תחילה", "bloc": "other" },
+      "בד": { "name": "ביחד נצליח", "bloc": "other" },
+      "בי": { "name": "צומת בית ישראל", "bloc": "other" },
+      "בקר": { "name": "אורות השחר", "bloc": "other" },
+      "ד": { "name": "השותפות לכולם", "bloc": "other" },
+      "ה": { "name": "גן עדן", "bloc": "other" },
+      "ז": { "name": "בטח", "bloc": "other" },
+      "זץ": { "name": "ברית עולם", "bloc": "other" },
+      "יק": { "name": "גה\"ת - גוש התנ\"כי", "bloc": "other" },
+      "נף": { "name": "שמע", "bloc": "other" },
+      "נץ": { "name": "ביטחון אישי", "bloc": "other" },
+      "נקי": { "name": "התיקון", "bloc": "other" },
+      "נר": { "name": "צבע שחור", "bloc": "other" },
+      "פה": { "name": "אני ואתה", "bloc": "other" },
+      "צדק": { "name": "שרשר", "bloc": "other" },
+      "צף": { "name": "הפיראטים", "bloc": "other" },
+      "ק": { "name": "דרך חזון ותקומה", "bloc": "other" },
+      "קה": { "name": "קול הנשים", "bloc": "other" },
+      "קך": { "name": "סדר חדש", "bloc": "other" },
+      "קץ": { "name": "משפט צדק", "bloc": "other" },
+      "רץ": { "name": "הקהל", "bloc": "other" },
+      "כן": { "name": "כחול לבן", "bloc": "other" },
+      "צבי": { "name": "אחי", "bloc": "other" }
+    }
+  },
+  "25": {
+    "label": "הכנסת ה-25 (1.11.2022) - נתוני עבר לבדיקה",
+    "resultsSite": "https://votes25.bechirot.gov.il/",
+    "csvBase": "https://media25.bechirot.gov.il/files/",
+    "agreements": [
+      ["מחל", "ט"],
+      ["פה", "כן"],
+      ["אמת", "מרצ"],
+      ["שס", "ג"]
+    ],
+    "parties": {
+      "מחל": { "name": "הליכוד", "bloc": "coalition" },
+      "פה": { "name": "יש עתיד", "bloc": "change" },
+      "ט": { "name": "הציונות הדתית", "bloc": "coalition" },
+      "כן": { "name": "המחנה הממלכתי", "bloc": "change" },
+      "שס": { "name": "ש\"ס", "bloc": "coalition" },
+      "ג": { "name": "יהדות התורה", "bloc": "coalition" },
+      "ל": { "name": "ישראל ביתנו", "bloc": "change" },
+      "עם": { "name": "רע\"ם", "bloc": "arab" },
+      "ום": { "name": "חד\"ש - תע\"ל", "bloc": "arab" },
+      "אמת": { "name": "העבודה", "bloc": "change" },
+      "מרצ": { "name": "מרצ", "bloc": "change" },
+      "ד": { "name": "בל\"ד", "bloc": "arab" },
+      "ב": { "name": "הבית היהודי", "bloc": "other" }
+    }
+  }
+}

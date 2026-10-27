@@ -1,0 +1,14 @@
+{
+  "name": "votes26",
+  "version": "1.0.0",
+  "description": "Dashboard for the 26th Knesset election results, polls and Bader-Ofer seat allocation",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
