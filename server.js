@@ -211,7 +211,8 @@ async function serveStatic(url, res) {
   }
   try {
     const body = await readFile(path);
-    res.writeHead(200, { 'content-type': MIME[extname(path)] || 'application/octet-stream' });
+    // no-cache: browsers and Cloudflare must check back, so a deploy shows up at once.
+    res.writeHead(200, { 'content-type': MIME[extname(path)] || 'application/octet-stream', 'cache-control': 'no-cache' });
     res.end(body);
   } catch {
     res.writeHead(404).end('Not found');
