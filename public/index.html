@@ -4,15 +4,30 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>בחירות 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="top">
-    <div>
-      <h1>הבחירות לכנסת ה-26</h1>
-      <p class="muted">קולות גולמיים, אחוזי הצבעה, מדגמים וחלוקת מנדטים לפי באדר-עופר והסכמי עודפים</p>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <span class="brand">בחירות 2026</span>
+      <div class="topbar-side">
+        <label class="check muted"><input type="checkbox" id="auto-refresh" checked> רענון אוטומטי</label>
+        <button id="alerts-toggle" aria-pressed="false" title="התראה במסך וקולית בכל עדכון של קובץ התוצאות הרשמי">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          <span class="alerts-label">התראה על עדכון תוצאות</span>
+        </button>
+        <span id="live-indicator" class="live" hidden role="status" aria-live="polite"><span class="live-dot"></span><span class="live-text"></span></span>
+      </div>
     </div>
-    <div class="header-side">
+  </header>
+  <section class="band">
+    <div class="band-inner">
+      <p class="date">יום שלישי, ט״ז בחשוון תשפ״ז · 27.10.2026</p>
+      <h1>הבחירות לכנסת ה-26</h1>
+      <p class="lead">קולות גולמיים, אחוזי הצבעה, מדגמים וחלוקת מנדטים לפי באדר-עופר והסכמי עודפים</p>
       <nav class="tabs" role="tablist">
         <button role="tab" data-tab="official" aria-selected="true">תוצאות רשמיות</button>
         <button role="tab" data-tab="turnout" aria-selected="false">אחוזי הצבעה</button>
@@ -20,11 +35,8 @@
         <button role="tab" data-tab="polls" aria-selected="false">סקרים</button>
         <button role="tab" data-tab="manual" aria-selected="false">סימולציה ידנית</button>
       </nav>
-      <label class="check muted"><input type="checkbox" id="auto-refresh" checked> רענון אוטומטי</label>
-      <button id="alerts-toggle" aria-pressed="false" title="התראה במסך וקולית בכל עדכון של קובץ התוצאות הרשמי">🔕 התראה על עדכון תוצאות</button>
-      <span id="live-indicator" class="live" hidden role="status" aria-live="polite"><span class="live-dot"></span><span class="live-text"></span></span>
     </div>
-  </header>
+  </section>
 
   <main>
     <section id="tab-official" class="tab">

@@ -116,7 +116,7 @@ function setEnabled(value) {
   enabled = value;
   remember(value);
   $('#alerts-toggle').setAttribute('aria-pressed', String(value));
-  $('#alerts-toggle').textContent = value ? '🔔 התראות פעילות' : '🔕 התראה על עדכון תוצאות';
+  $('#alerts-toggle .alerts-label').textContent = value ? 'התראות פעילות' : 'התראה על עדכון תוצאות';
   clearInterval(timer);
   last = null;
   if (!value) return;
