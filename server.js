@@ -127,6 +127,36 @@ async function cached(key, ttl, load) {
 
 const freshness = (key) => ({ fetchedAt: cache.get(key)?.at, staleError: cache.get(key)?.error || null });
 
+/** One turnout layer of an election, from the relay or the turnout map. */
+async function loadTurnout(knesset, layer) {
+  const election = elections[knesset];
+  // The catalog is only needed for elections without a fixed path in the config.
+  const path = election.turnoutPath || (await cached('turnout:catalog', 60 * 60_000, () => fetchTurnoutCatalog()))[knesset];
+  if (!path) throw Object.assign(new Error(`No turnout data for Knesset ${knesset}`), { status: 404 });
+  const load = knesset === '26'
+    ? () => withRelay(`turnout-${layer}`, (e) => parseTurnoutLayer(JSON.parse(e.body.toString('utf8')), turnoutLayerUrl(path, layer)),
+      () => fetchTurnoutLayer(path, layer))
+    : () => fetchTurnoutLayer(path, layer);
+  return cached(`turnout:${knesset}:${layer}`, TURNOUT_TTL_MS, load);
+}
+
+/**
+ * National totals from the latest turnout report, the denominator for how much
+ * of the vote has been counted. Never waits for a download: it answers from the
+ * cache and refreshes it in the background, so a blocked or slow turnout source
+ * does not delay the results. Null until the turnout data has been loaded once.
+ */
+const expectedLoading = new Set();
+function expectedTotals(knesset) {
+  if (!expectedLoading.has(knesset)) {
+    expectedLoading.add(knesset);
+    loadTurnout(knesset, 'municipal').catch(() => {}).finally(() => expectedLoading.delete(knesset));
+  }
+  const data = cache.get(`turnout:${knesset}:municipal`)?.value;
+  const total = data?.total;
+  return total ? { eligible: total.eligible, voters: total.voters, kalpis: total.kalpis, reportTime: total.updated || data.reportTime } : null;
+}
+
 function sendJson(res, status, body) {
   res.writeHead(status, { 'content-type': MIME['.json'], 'cache-control': 'no-store' });
   res.end(JSON.stringify(body));
@@ -150,7 +180,7 @@ async function handleApi(url, res) {
       : () => fetchOfficialResults(election.csvBase);
     const { cities, ballots, ...national } = await cached(key, OFFICIAL_TTL_MS, load);
     const meta = freshness(key);
-    if (url.pathname === '/api/official') return sendJson(res, 200, { ...national, ...meta });
+    if (url.pathname === '/api/official') return sendJson(res, 200, { ...national, expected: expectedTotals(knesset), ...meta });
     if (url.pathname === '/api/official/cities') {
       return sendJson(res, 200, { status: national.status, cities: cities || [], ...meta });
     }
@@ -161,16 +191,8 @@ async function handleApi(url, res) {
   }
 
   if (url.pathname.startsWith('/api/turnout')) {
-    // The catalog is only needed for elections without a fixed path in the config.
-    const path = election.turnoutPath || (await cached('turnout:catalog', 60 * 60_000, () => fetchTurnoutCatalog()))[knesset];
-    const loadLayer = (layer) => (knesset === '26'
-      ? () => withRelay(`turnout-${layer}`, (e) => parseTurnoutLayer(JSON.parse(e.body.toString('utf8')), turnoutLayerUrl(path, layer)),
-        () => fetchTurnoutLayer(path, layer))
-      : () => fetchTurnoutLayer(path, layer));
-    if (!path) return sendJson(res, 404, { error: `No turnout data for Knesset ${knesset}` });
     if (url.pathname === '/api/turnout') {
-      const key = `turnout:${knesset}:municipal`;
-      const data = await cached(key, TURNOUT_TTL_MS, loadLayer('municipal'));
+      const data = await loadTurnout(knesset, 'municipal');
       const baseline = baseline2022.cities;
       return sendJson(res, 200, {
         ...data,
@@ -179,14 +201,13 @@ async function handleApi(url, res) {
         hourly: election.turnoutHourly || [],
         hourlySource: election.turnoutSource || null,
         history: turnoutHistory,
-        ...freshness(key),
+        ...freshness(`turnout:${knesset}:municipal`),
       });
     }
     if (url.pathname === '/api/turnout/kalpis') {
-      const key = `turnout:${knesset}:kalpi`;
-      const data = await cached(key, TURNOUT_TTL_MS, loadLayer('kalpi'));
+      const data = await loadTurnout(knesset, 'kalpi');
       const city = url.searchParams.get('city');
-      return sendJson(res, 200, { ...data, features: data.features.filter((f) => f.city === city), ...freshness(key) });
+      return sendJson(res, 200, { ...data, features: data.features.filter((f) => f.city === city), ...freshness(`turnout:${knesset}:kalpi`) });
     }
   }
 
@@ -228,7 +249,7 @@ createServer(async (req, res) => {
   } catch (err) {
     console.error(err);
     // 503 rather than 502: Cloudflare replaces origin 502 responses with its own HTML page.
-    sendJson(res, 503, { error: err.message });
+    sendJson(res, err.status || 503, { error: err.message });
   }
 }).listen(PORT, HOST, () => {
   console.log(`Elections dashboard: http://${HOST}:${PORT}${RELAY_TOKEN ? ' (relay uploads enabled)' : ''}`);

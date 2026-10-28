@@ -38,7 +38,15 @@ export function kpi(label, value, sub = '') {
  */
 export function setHtml(container, html) {
   const before = new Map([...container.querySelectorAll('[data-k]')].map((e) => [e.dataset.k, e.textContent]));
+  // A re-render keeps the caret in a field the viewer is typing in.
+  const active = container.contains(document.activeElement) && document.activeElement.id ? document.activeElement : null;
+  const caret = active?.selectionStart ?? null;
   container.innerHTML = html;
+  if (active) {
+    const field = document.getElementById(active.id);
+    field?.focus();
+    if (caret != null) field?.setSelectionRange?.(caret, caret);
+  }
   let changed = 0;
   if (!before.size) return 0;
   for (const el of container.querySelectorAll('[data-k]')) {
@@ -141,6 +149,13 @@ export function sortableTable(id, columns, rows, state, { rowAttrs = () => '', l
     <tbody>${shown.map((r) => `<tr ${rowAttrs(r)}>${columns.map((c) => `<td class="${c.num ? 'num' : ''}"${rowKey ? ` data-k="${esc(`${id}:${rowKey(r)}:${c.key}`)}"` : ''}>${c.html ? c.html(r) : esc(c.value(r))}</td>`).join('')}</tr>`).join('')}</tbody>
   </table></div>${sorted.length > shown.length ? `<p class="muted" style="margin-top:6px">מוצגות ${shown.length} מתוך ${sorted.length} שורות. אפשר לצמצם עם החיפוש.</p>` : ''}`;
 }
+
+/** Ballot ids match by prefix, so typing "12" narrows to 12, 12.1, 120 and so on. */
+export const matchBallot = (id, q) => !q || String(id ?? '').startsWith(q.trim());
+
+/** A search field for the ballot list of a city. */
+export const ballotSearch = (id, value) =>
+  `<label class="ballot-search">חיפוש קלפי <input type="search" id="${id}" inputmode="decimal" placeholder="מספר קלפי" value="${esc(value)}"></label>`;
 
 /** Wires header clicks of a sortable table rendered inside `container`. */
 export function onSortClick(container, id, state, rerender) {

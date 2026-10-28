@@ -1,4 +1,4 @@
-import { $, esc, fmt, fmtPct, kpi, getJson, sortableTable, onSortClick, setHtml, markRefreshed, signed, staleNote } from '../ui.js';
+import { $, esc, fmt, fmtPct, kpi, getJson, sortableTable, onSortClick, setHtml, matchBallot, ballotSearch, markRefreshed, signed, staleNote } from '../ui.js';
 import { getState, setState } from '../url-state.js';
 import { lineChart } from '../line-chart.js';
 
@@ -198,7 +198,7 @@ function renderCities() {
   onSortClick(container, 'tcities', citySort, renderCities);
   container.querySelectorAll('[data-tcity]').forEach((a) => a.addEventListener('click', async (ev) => {
     ev.preventDefault();
-    setState({ tcity: a.dataset.tcity });
+    setState({ tcity: a.dataset.tcity, tkq: null });
     kalpis = { city: a.dataset.tcity, features: [] };
     renderCity();
     await loadKalpis(a.dataset.tcity);
@@ -220,6 +220,8 @@ function renderCity() {
     { key: 'delta', label: 'שינוי מהדיווח הקודם', num: true, value: (f) => f.delta ?? 0, html: (f) => (f.delta != null ? signed(f.delta) : '') },
     { key: 'updated', label: 'עודכן', value: (f) => f.updated || '', html: (f) => esc(f.updated || '') },
   ];
+  const query = getState().tkq || '';
+  const shown = kalpis.features.filter((f) => matchBallot(f.kalpi, query));
   setHtml(container, `<div class="card">
     <div class="toolbar" style="justify-content:space-between">
       <h2 style="margin:0">${esc(city.name || code)} <span class="muted">(סמל ${esc(code)})</span></h2>
@@ -231,8 +233,14 @@ function renderCity() {
       ${kpi('בזב', fmt.format(city.eligible ?? 0))}
       ${kpi('קלפיות', fmt.format(city.kalpis ?? 0))}
     </div>
-    ${kalpis.city === code && kalpis.features.length ? sortableTable('tkalpis', columns, kalpis.features, kalpiSort, { rowKey: (f) => f.id }) : '<p class="muted">טוען קלפיות...</p>'}
+    <div class="toolbar">${ballotSearch('tkalpi-q', query)}</div>
+    ${kalpis.city === code && kalpis.features.length
+      ? (shown.length
+        ? sortableTable('tkalpis', columns, shown, kalpiSort, { rowKey: (f) => f.id })
+        : '<p class="muted">אין קלפי שמספרה מתחיל כך.</p>')
+      : '<p class="muted">טוען קלפיות...</p>'}
   </div>`);
   onSortClick(container, 'tkalpis', kalpiSort, renderCity);
-  $('#close-tcity').addEventListener('click', () => { setState({ tcity: null }); renderCity(); });
+  $('#tkalpi-q').addEventListener('input', () => { setState({ tkq: $('#tkalpi-q').value.trim() }); renderCity(); });
+  $('#close-tcity').addEventListener('click', () => { setState({ tcity: null, tkq: null }); renderCity(); });
 }

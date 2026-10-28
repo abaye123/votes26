@@ -1,4 +1,4 @@
-import { $, esc, fmt, fmtPct, pct, kpi, getJson, partyName, blocOf, bars, sortableTable, onSortClick, setHtml, markRefreshed, signed, staleNote } from '../ui.js';
+import { $, esc, fmt, fmtPct, pct, kpi, getJson, partyName, blocOf, bars, sortableTable, onSortClick, setHtml, matchBallot, ballotSearch, markRefreshed, signed, staleNote } from '../ui.js';
 import { getState, setState } from '../url-state.js';
 import { renderAllocation } from './allocation.js';
 
@@ -70,7 +70,8 @@ function renderOfficial() {
     return;
   }
   const t = national.totals;
-  setHtml(body, `<div class="kpis">
+  setHtml(body, `${countedCard(t, national.expected)}
+    <div class="kpis">
       ${kpi('קלפיות שנספרו', fmt.format(t.ballots), `ב-${fmt.format(t.cities)} יישובים`)}
       ${kpi('בעלי זכות בחירה (בקלפיות שנספרו)', fmt.format(t.eligible))}
       ${kpi('מצביעים', fmt.format(t.voters), `שיעור הצבעה ${fmtPct.format(pct(t.voters, t.eligible))}%`)}
@@ -80,6 +81,27 @@ function renderOfficial() {
   fillPartySelect();
   renderCities();
   renderCity();
+}
+
+/**
+ * How much of the vote is counted, against the latest turnout report of the
+ * elections committee. That report is from before the polls closed, so the
+ * total number of voters is an estimate.
+ */
+function countedCard(t, expected) {
+  if (!expected?.voters) return '';
+  const share = Math.min(100, pct(t.voters, expected.voters));
+  const ballots = expected.kalpis ? ` · ${fmt.format(t.ballots)} מתוך ${fmt.format(expected.kalpis)} קלפיות` : '';
+  const eligible = expected.eligible ? ` · ${fmtPct.format(Math.min(100, pct(t.eligible, expected.eligible)))}% מבעלי זכות הבחירה` : '';
+  return `<div class="card counted">
+    <div class="counted-head">
+      <span class="label">נספרו</span>
+      <span class="value" data-k="counted">${fmtPct.format(share)}%</span>
+      <span class="muted">מהקולות (משוער)</span>
+    </div>
+    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${share.toFixed(2)}"><span style="width:${share}%"></span></div>
+    <p class="muted">${fmt.format(t.voters)} מצביעים נספרו מתוך כ-${fmt.format(expected.voters)}, לפי דיווח אחוזי ההצבעה של ועדת הבחירות${expected.reportTime ? ` (${esc(expected.reportTime)})` : ''}${ballots}${eligible}</p>
+  </div>`;
 }
 
 function fillPartySelect() {
@@ -130,7 +152,7 @@ function renderCities() {
 }
 
 async function selectCity(code) {
-  setState({ city: code });
+  setState({ city: code, bq: null });
   cityBallots = { city: code, ballots: [] };
   renderCity();
   const knesset = $('#knesset').value;
@@ -174,6 +196,8 @@ function renderCity() {
     })),
   ];
 
+  const query = getState().bq || '';
+  const shownBallots = cityBallots.ballots.filter((b) => matchBallot(b.ballot, query));
   setHtml(container, `<div class="card">
     <div class="toolbar" style="justify-content:space-between">
       <h2 style="margin:0">${esc(city.name)} <span class="muted">(סמל ${esc(city.code)})</span></h2>
@@ -194,11 +218,17 @@ function renderCity() {
       <div class="table-wrap"><table><thead><tr><th>אותיות</th><th>רשימה</th><th class="num">קולות</th><th class="num">ביישוב</th><th class="num">ארצי</th><th class="num">הפרש</th></tr></thead>
         <tbody>${partyRows}</tbody></table></div>
     </div>
-    <h2 style="margin-top:16px">קלפיות (${fmt.format(cityBallots.ballots.length)})</h2>
+    <div class="toolbar" style="margin-top:16px">
+      <h2 style="margin:0">קלפיות (${fmt.format(cityBallots.ballots.length)})</h2>
+      ${ballotSearch('ballot-q', query)}
+    </div>
     <div id="city-ballots">${cityBallots.city === code && cityBallots.ballots.length
-      ? sortableTable('ballots', ballotColumns, cityBallots.ballots, ballotSort, { rowKey: (b) => b.ballot })
+      ? (shownBallots.length
+        ? sortableTable('ballots', ballotColumns, shownBallots, ballotSort, { rowKey: (b) => b.ballot })
+        : '<p class="muted">אין קלפי שמספרה מתחיל כך.</p>')
       : '<p class="muted">טוען קלפיות...</p>'}</div>
   </div>`);
   onSortClick(container, 'ballots', ballotSort, renderCity);
-  $('#close-city').addEventListener('click', () => { setState({ city: null }); renderCity(); });
+  $('#ballot-q').addEventListener('input', () => { setState({ bq: $('#ballot-q').value.trim() }); renderCity(); });
+  $('#close-city').addEventListener('click', () => { setState({ city: null, bq: null }); renderCity(); });
 }
